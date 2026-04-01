@@ -1,68 +1,101 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-// RoomInventory class (Actor)
+// Domain Model: Room
+class Room {
+    private String type;
+    private double price;
+    private String amenities;
+
+    public Room(String type, double price, String amenities) {
+        this.type = type;
+        this.price = price;
+        this.amenities = amenities;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getAmenities() {
+        return amenities;
+    }
+
+    public void displayDetails() {
+        System.out.println("Room Type: " + type);
+        System.out.println("Price: " + price);
+        System.out.println("Amenities: " + amenities);
+        System.out.println("---------------------------");
+    }
+}
+
+// Inventory (same idea from Use Case 3)
 class RoomInventory {
-
-    // Centralized inventory using HashMap
     private HashMap<String, Integer> inventory;
 
-    // Constructor to initialize inventory
     public RoomInventory() {
         inventory = new HashMap<>();
     }
 
-    // Method to add room type with count
-    public void addRoomType(String roomType, int count) {
-        inventory.put(roomType, count);
+    public void addRoomType(String type, int count) {
+        inventory.put(type, count);
     }
 
-    // Method to get availability of a room type
-    public int getAvailability(String roomType) {
-        return inventory.getOrDefault(roomType, 0);
+    // READ-ONLY access
+    public int getAvailability(String type) {
+        return inventory.getOrDefault(type, 0);
     }
 
-    // Method to update room availability
-    public void updateAvailability(String roomType, int newCount) {
-        if (inventory.containsKey(roomType)) {
-            inventory.put(roomType, newCount);
-        } else {
-            System.out.println("Room type does not exist!");
-        }
+    // For debugging / view only
+    public Map<String, Integer> getAllInventory() {
+        return inventory;
     }
+}
 
-    // Method to display entire inventory
-    public void displayInventory() {
-        System.out.println("\n--- Current Room Inventory ---");
-        for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
+// Search Service (READ-ONLY logic)
+class SearchService {
+
+    public void searchAvailableRooms(RoomInventory inventory, List<Room> rooms) {
+
+        System.out.println("\n--- Available Rooms ---");
+
+        for (Room room : rooms) {
+
+            int available = inventory.getAvailability(room.getType());
+
+            // Defensive check → only show available rooms
+            if (available > 0) {
+                room.displayDetails();
+                System.out.println("Available Count: " + available);
+                System.out.println();
+            }
         }
     }
 }
 
 // Main class
-public class UseCase3InventorySetup {
+public class UseCase4RoomSearch {
 
     public static void main(String[] args) {
 
-        // Step 1: Initialize inventory
+        // Step 1: Setup inventory
         RoomInventory inventory = new RoomInventory();
+        inventory.addRoomType("Single", 5);
+        inventory.addRoomType("Double", 0); // unavailable
+        inventory.addRoomType("Deluxe", 2);
 
-        // Step 2: Register room types
-        inventory.addRoomType("Single", 10);
-        inventory.addRoomType("Double", 5);
-        inventory.addRoomType("Deluxe", 3);
+        // Step 2: Create room domain objects
+        List<Room> rooms = new ArrayList<>();
 
-        // Step 3: Display inventory
-        inventory.displayInventory();
+        rooms.add(new Room("Single", 1000, "WiFi, AC"));
+        rooms.add(new Room("Double", 1800, "WiFi, AC, TV"));
+        rooms.add(new Room("Deluxe", 2500, "WiFi, AC, TV, Mini Bar"));
 
-        // Step 4: Check availability
-        System.out.println("\nAvailable Single Rooms: " + inventory.getAvailability("Single"));
-
-        // Step 5: Update availability
-        inventory.updateAvailability("Single", 8);
-
-        // Step 6: Display updated inventory
-        inventory.displayInventory();
+        // Step 3: Guest searches rooms
+        SearchService searchService = new SearchService();
+        searchService.searchAvailableRooms(inventory, rooms);
     }
 }
