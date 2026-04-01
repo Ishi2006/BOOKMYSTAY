@@ -1,64 +1,68 @@
-abstract class Room {
-    private String roomType;
-    private int beds;
-    private double price;
+import java.util.HashMap;
+import java.util.Map;
 
-    public Room(String roomType, int beds, double price) {
-        this.roomType = roomType;
-        this.beds = beds;
-        this.price = price;
+// RoomInventory class (Actor)
+class RoomInventory {
+
+    // Centralized inventory using HashMap
+    private HashMap<String, Integer> inventory;
+
+    // Constructor to initialize inventory
+    public RoomInventory() {
+        inventory = new HashMap<>();
     }
 
-    public void displayDetails() {
-        System.out.println("Room Type: " + roomType);
-        System.out.println("Beds: " + beds);
-        System.out.println("Price per night: $" + price);
+    // Method to add room type with count
+    public void addRoomType(String roomType, int count) {
+        inventory.put(roomType, count);
+    }
+
+    // Method to get availability of a room type
+    public int getAvailability(String roomType) {
+        return inventory.getOrDefault(roomType, 0);
+    }
+
+    // Method to update room availability
+    public void updateAvailability(String roomType, int newCount) {
+        if (inventory.containsKey(roomType)) {
+            inventory.put(roomType, newCount);
+        } else {
+            System.out.println("Room type does not exist!");
+        }
+    }
+
+    // Method to display entire inventory
+    public void displayInventory() {
+        System.out.println("\n--- Current Room Inventory ---");
+        for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
     }
 }
 
-class SingleRoom extends Room {
-    public SingleRoom() {
-        super("Single Room", 1, 100.0);
-    }
-}
+// Main class
+public class UseCase3InventorySetup {
 
-class DoubleRoom extends Room {
-    public DoubleRoom() {
-        super("Double Room", 2, 180.0);
-    }
-}
-
-class SuiteRoom extends Room {
-    public SuiteRoom() {
-        super("Suite Room", 3, 300.0);
-    }
-}
-
-public class UseCase2RoomInitialization {
     public static void main(String[] args) {
 
-        System.out.println("Welcome to Book My Stay");
-        System.out.println("Hotel Booking Management System v2.1\n");
+        // Step 1: Initialize inventory
+        RoomInventory inventory = new RoomInventory();
 
-        Room single = new SingleRoom();
-        Room dbl = new DoubleRoom();
-        Room suite = new SuiteRoom();
+        // Step 2: Register room types
+        inventory.addRoomType("Single", 10);
+        inventory.addRoomType("Double", 5);
+        inventory.addRoomType("Deluxe", 3);
 
-        int singleAvailability = 5;
-        int doubleAvailability = 3;
-        int suiteAvailability = 2;
+        // Step 3: Display inventory
+        inventory.displayInventory();
 
-        System.out.println("---- Room Details ----\n");
+        // Step 4: Check availability
+        System.out.println("\nAvailable Single Rooms: " + inventory.getAvailability("Single"));
 
-        single.displayDetails();
-        System.out.println("Available: " + singleAvailability);
-        System.out.println();
+        // Step 5: Update availability
+        inventory.updateAvailability("Single", 8);
 
-        dbl.displayDetails();
-        System.out.println("Available: " + doubleAvailability);
-        System.out.println();
-
-        suite.displayDetails();
-        System.out.println("Available: " + suiteAvailability);
+        // Step 6: Display updated inventory
+        inventory.displayInventory();
     }
 }
